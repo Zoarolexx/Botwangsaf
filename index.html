@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>BOTZEROZXTEST — Bot WhatsApp Multi Fitur</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    background: #0a0a0f;
+    font-family: 'Rajdhani', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 16px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(0, 255, 200, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(180, 0, 255, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Grid overlay */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(0, 255, 200, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 255, 200, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  /* Header badge */
+  .badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .badge-line {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00ffcc);
+  }
+  .badge-line.right {
+    background: linear-gradient(90deg, #00ffcc, transparent);
+  }
+  .badge-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #00ffcc;
+    text-transform: uppercase;
+  }
+
+  /* Version tag */
+  .version {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .version-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, rgba(0,255,200,0.1), rgba(180,0,255,0.1));
+    border: 1px solid rgba(0,255,200,0.3);
+    color: #00ffcc;
+    padding: 4px 16px;
+    border-radius: 100px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Main card */
+  .card {
+    background: rgba(17, 17, 26, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 200, 0.15);
+    border-radius: 32px;
+    padding: 28px 24px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,255,200,0.05);
+    transition: all 0.3s ease;
+  }
+
+  /* Header */
+  .logo {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .logo-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+    background: linear-gradient(135deg, #00ffcc, #b400ff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,255,200,0.4); }
+    70% { box-shadow: 0 0 0 15px rgba(0,255,200,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,255,200,0); }
+  }
+  .logo-icon span {
+    font-size: 38px;
+  }
+  .logo h1 {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ffffff, #00ffcc, #b400ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 1px;
+  }
+  .logo p {
+    font-size: 12px;
+    color: #6a6a9a;
+    margin-top: 6px;
+  }
+
+  /* Commands grid */
+  .commands {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .cmd-item {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0,255,200,0.08);
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .cmd-item:hover {
+    border-color: #00ffcc;
+    transform: translateY(-2px);
+  }
+  .cmd-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #00ffcc;
+  }
+  .cmd-desc {
+    font-size: 9px;
+    color: #8a8aaa;
+    margin-top: 4px;
+  }
+
+  /* Info boxes */
+  .info-card {
+    background: rgba(0, 255, 200, 0.04);
+    border-left: 3px solid #00ffcc;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #aaaacc;
+  }
+
+  .warning-card {
+    background: rgba(180, 0, 255, 0.04);
+    border-left: 3px solid #b400ff;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 20px;
+  }
+  .warning-title {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #b400ff;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .warning-list {
+    list-style: none;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #8a8acc;
+  }
+  .warning-list li {
+    margin: 6px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+  .warning-list li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: #b400ff;
+  }
+
+  /* Form */
+  .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #6a6a9a;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .input-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  .input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+  }
+  input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    color: #e0e0ff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  input:focus {
+    border-color: #00ffcc;
+    box-shadow: 0 0 0 2px rgba(0,255,200,0.1);
+  }
+  input::placeholder {
+    color: #3a3a5a;
+    font-size: 12px;
+  }
+
+  /* Captcha */
+  .captcha {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,255,200,0.1);
+  }
+  .captcha-question {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    padding: 12px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    margin-bottom: 14px;
+    color: #00ffcc;
+  }
+  .captcha-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .captcha-btn {
+    padding: 10px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,255,200,0.15);
+    border-radius: 12px;
+    color: #e0e0ff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .captcha-btn:hover {
+    border-color: #00ffcc;
+    color: #00ffcc;
+  }
+  .captcha-status {
+    text-align: center;
+    font-size: 11px;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .captcha-status.ok {
+    color: #00ffcc;
+  }
+  .captcha-status.fail {
+    color: #ff4444;
+  }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00ffcc, #00997a);
+    border: none;
+    border-radius: 18px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: #0a0a0f;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn:hover:not(:disabled) {
+    transform: scale(0.98);
+    box-shadow: 0 0 20px rgba(0,255,200,0.3);
+  }
+
+  /* Loading */
+  .loading {
+    display: none;
+    margin-top: 18px;
+    padding: 12px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 14px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #00ffcc;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0,255,200,0.2);
+    border-top-color: #00ffcc;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Result */
+  .result {
+    display: none;
+    margin-top: 20px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 20px;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .result-inner {
+    padding: 20px;
+  }
+  .result.success .result-inner {
+    border: 1px solid #00ffcc;
+    border-radius: 20px;
+  }
+  .result.error .result-inner {
+    border: 1px solid #ff4444;
+    border-radius: 20px;
+  }
+  .pairing-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 800;
+    text-align: center;
+    letter-spacing: 4px;
+    color: #00ffcc;
+    background: #0a0a0f;
+    padding: 20px;
+    border-radius: 14px;
+    margin: 12px 0;
+    word-break: break-all;
+  }
+  .btn-copy {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid #00ffcc;
+    border-radius: 14px;
+    color: #00ffcc;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .btn-copy:hover {
+    background: rgba(0,255,200,0.1);
+  }
+  .error-text {
+    color: #ff4444;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 9px;
+    color: #3a3a5a;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #00ffcc;
+    color: #0a0a0f;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 0;
+    transition: all 0.25s;
+    pointer-events: none;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<div class="container">
+  <div class="badge">
+    <div class="badge-line"></div>
+    <span class="badge-text">BOTZEROZXTEST</span>
+    <div class="badge-line right"></div>
+  </div>
+
+  <div class="version">
+    <span class="version-chip">⚡ MULTI FITUR PREMIUM ⚡</span>
+  </div>
+
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">
+        <span>🤖</span>
+      </div>
+      <h1>BOTZEROZXTEST</h1>
+      <p>WhatsApp Bot Super Lengkap</p>
+    </div>
+
+    <!-- Command List -->
+    <div class="commands">
+      <div class="cmd-item"><div class="cmd-code">.sticker</div><div class="cmd-desc">Foto/Video → Stiker</div></div>
+      <div class="cmd-item"><div class="cmd-code">.ytmp3 &lt;url&gt;</div><div class="cmd-desc">Download Audio YT</div></div>
+      <div class="cmd-item"><div class="cmd-code">.ig &lt;url&gt;</div><div class="cmd-desc">Download IG</div></div>
+      <div class="cmd-item"><div class="cmd-code">.tt &lt;url&gt;</div><div class="cmd-desc">Download TikTok</div></div>
+      <div class="cmd-item"><div class="cmd-code">.fb &lt;url&gt;</div><div class="cmd-desc">Download FB</div></div>
+      <div class="cmd-item"><div class="cmd-code">.tw &lt;url&gt;</div><div class="cmd-desc">Download Twitter</div></div>
+      <div class="cmd-item"><div class="cmd-code">.ai &lt;pesan&gt;</div><div class="cmd-desc">Chat dengan AI</div></div>
+      <div class="cmd-item"><div class="cmd-code">.vo</div><div class="cmd-desc">Buka pesan sekali lihat</div></div>
+    </div>
+
+    <div class="info-card">
+      ✨ <strong>Auto Reply & Welcome</strong> aktif! Bot akan menyapa member baru dan membalas pesan otomatis sesuai keyword.
+    </div>
+
+    <div class="warning-card">
+      <div class="warning-title">📌 ATURAN NOMOR</div>
+      <ul class="warning-list">
+        <li>Indonesia → 628xxxxxxxxxx (contoh: 628123456789)</li>
+        <li>Malaysia → 601xxxxxxxxx</li>
+        <li>Singapura → 658xxxxxxx</li>
+        <li>Negara lain → kode negara tanpa awalan 0</li>
+      </ul>
+    </div>
+
+    <div class="label">📱 NOMOR WHATSAPP BOT</div>
+    <div class="input-wrapper">
+      <span class="input-icon">📱</span>
+      <input type="number" id="phoneNumber" placeholder="628xxxxxxxxxx">
+    </div>
+
+    <!-- Captcha -->
+    <div class="captcha">
+      <div class="captcha-question" id="captchaQuestion">Loading...</div>
+      <div class="captcha-options" id="captchaOptions"></div>
+      <div class="captcha-status" id="captchaStatus"></div>
+    </div>
+
+    <button class="btn" id="createBtn" disabled>🚀 BUAT BOT SEKARANG</button>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <span>Memproses pairing code...</span>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div class="footer">
+      ⚡ BOTZEROZXTEST — ALL FEATURES ACTIVE<br>
+      Powered by Baileys Library
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✅ Tersalin!</div>
+
+<script>
+  // ==================== CAPTCHA ====================
+  let captchaPassed = false;
+  let currentCaptchaAnswer = 0;
+
+  function generateCaptcha() {
+    const a = Math.floor(Math.random() * 12) + 2;
+    const b = Math.floor(Math.random() * 12) + 2;
+    const operations = [
+      { text: `${a} + ${b}`, func: () => a + b },
+      { text: `${a + b} - ${b}`, func: () => a },
+      { text: `${a} × ${b}`, func: () => a * b }
+    ];
+    const selected = operations[Math.floor(Math.random() * operations.length)];
+    const questionText = selected.text;
+    currentCaptchaAnswer = selected.func();
+    
+    document.getElementById('captchaQuestion').innerHTML = questionText + ' = ?';
+    
+    // Generate options
+    const options = new Set([currentCaptchaAnswer]);
+    while (options.size < 4) {
+      let wrong = currentCaptchaAnswer + Math.floor(Math.random() * 11) - 5;
+      if (wrong > 0 && wrong !== currentCaptchaAnswer) options.add(wrong);
+    }
+    
+    const shuffled = [...options].sort(() => Math.random() - 0.5);
+    const container = document.getElementById('captchaOptions');
+    container.innerHTML = '';
+    
+    shuffled.forEach(value => {
+      const btn = document.createElement('button');
+      btn.className = 'captcha-btn';
+      btn.textContent = value;
+      btn.onclick = () => checkCaptcha(value, btn);
+      container.appendChild(btn);
+    });
+    
+    document.getElementById('captchaStatus').innerHTML = '';
+    captchaPassed = false;
+    document.getElementById('createBtn').disabled = true;
+  }
+
+  function checkCaptcha(value, btn) {
+    if (captchaPassed) return;
+    
+    if (value === currentCaptchaAnswer) {
+      captchaPassed = true;
+      document.getElementById('captchaStatus').innerHTML = '✓ Verifikasi berhasil!';
+      document.getElementById('captchaStatus').className = 'captcha-status ok';
+      document.getElementById('createBtn').disabled = false;
+      
+      // Reset captcha after 2 minutes
+      setTimeout(() => {
+        if (!document.getElementById('createBtn').disabled) {
+          generateCaptcha();
+        }
+      }, 120000);
+    } else {
+      btn.style.borderColor = '#ff4444';
+      btn.style.color = '#ff4444';
+      setTimeout(() => {
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }, 500);
+      document.getElementById('captchaStatus').innerHTML = '✖ Jawaban salah, coba lagi';
+      document.getElementById('captchaStatus').className = 'captcha-status fail';
+      setTimeout(() => {
+        if (!captchaPassed) {
+          document.getElementById('captchaStatus').innerHTML = '';
+        }
+      }, 1500);
+    }
+  }
+
+  // Toast notification
+  function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.style.background = isError ? '#ff4444' : '#00ffcc';
+    toast.style.color = isError ? '#fff' : '#0a0a0f';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      toast.style.background = '#00ffcc';
+      toast.style.color = '#0a0a0f';
+    }, 2500);
+  }
+
+  // Validate phone number
+  function validatePhoneNumber(number) {
+    return /^[1-9][0-9]{9,14}$/.test(number);
+  }
+
+  // Main function to create bot
+  async function createBot() {
+    const phoneNumber = document.getElementById('phoneNumber').value.trim();
+    
+    if (!phoneNumber) {
+      showToast('⚠ Masukkan nomor WhatsApp terlebih dahulu!', true);
+      return;
+    }
+    
+    if (!validatePhoneNumber(phoneNumber)) {
+      showToast('⚠ Format nomor salah! Contoh: 628123456789', true);
+      return;
+    }
+    
+    if (!captchaPassed) {
+      showToast('⚠ Selesaikan captcha terlebih dahulu!', true);
+      return;
+    }
+    
+    const createBtn = document.getElementById('createBtn');
+    const loading = document.getElementById('loading');
+    const resultDiv = document.getElementById('result');
+    
+    createBtn.disabled = true;
+    loading.style.display = 'flex';
+    resultDiv.style.display = 'none';
+    
+    try {
+      const response = await fetch('/jadibot2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nomor: phoneNumber })
+      });
+      
+      const data = await response.json();
+      loading.style.display = 'none';
+      
+      if (data.status) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'result success';
+        resultDiv.innerHTML = `
+          <div class="result-inner">
+            <div style="font-family: monospace; margin-bottom: 8px;">✅ <strong>BERHASIL!</strong></div>
+            <div class="pairing-code" id="pairCode">${data.pairing_code}</div>
+            <div style="font-size: 12px; margin: 12px 0; line-height: 1.6; color: #aaaacc;">
+              📌 <strong>CARA MENGGUNAKAN:</strong><br>
+              1. Buka WhatsApp → Setelan → Perangkat Tertaut<br>
+              2. Tap "Tautkan Perangkat"<br>
+              3. Masukkan kode <strong>${data.pairing_code}</strong><br><br>
+              🤖 <strong>COMMAND TERSEDIA:</strong><br>
+              .sticker, .ytmp3, .ig, .tt, .fb, .tw, .ai, .vo, .help<br>
+              ✨ Auto reply, welcome, anti link aktif!
+            </div>
+            <button class="btn-copy" onclick="copyPairingCode()">📋 SALIN PAIRING CODE</button>
+          </div>
+        `;
+        showToast('✅ Bot berhasil dibuat! Cek WhatsApp Anda.');
+        
+        // Reset form
+        document.getElementById('phoneNumber').value = '';
+        generateCaptcha();
+      } else {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `
+          <div class="result-inner">
+            <div class="error-text">❌ ${data.error || 'Terjadi kesalahan pada server'}</div>
+          </div>
+        `;
+        showToast(data.error || 'Gagal membuat bot', true);
+        createBtn.disabled = false;
+      }
+    } catch (error) {
+      loading.style.display = 'none';
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'result error';
+      resultDiv.innerHTML = `
+        <div class="result-inner">
+          <div class="error-text">❌ Gagal terhubung ke server. Pastikan backend berjalan di port 3000</div>
+        </div>
+      `;
+      showToast('Gagal terhubung ke server!', true);
+      createBtn.disabled = false;
+    }
+  }
+
+  function copyPairingCode() {
+    const codeElement = document.getElementById('pairCode');
+    if (codeElement) {
+      const code = codeElement.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        showToast('✅ Pairing code disalin!');
+      }).catch(() => {
+        showToast('⚠ Gagal menyalin', true);
+      });
+    }
+  }
+
+  // Event listener
+  document.getElementById('createBtn').addEventListener('click', createBot);
+  
+  // Enter key support
+  document.getElementById('phoneNumber').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !document.getElementById('createBtn').disabled) {
+      createBot();
+    }
+  });
+
+  // Initialize captcha
+  generateCaptcha();
+</script>
+</body>
+</html>
